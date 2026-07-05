@@ -665,52 +665,61 @@ v1 기본 방향은 Flutter feature의 repository가 관리자 API를 직접 호
 
 ## AOS/iOS -> Flutter 연결 흐름
 
-iOS와 AOS는 다른 host를 쓰더라도 같은 `Host Contract v1` 슬롯으로 Flutter feature를 도킹해야 해요.
-즉 두 플랫폼이 만드는 값은 달라도, Flutter에 넘기는 shape와 해석은 같아야 해요.
+iOS와 AOS는 각자 많은 앱 feature를 가지고 있고, Flutter는 그중 하나의 feature 진입 방식을 담당해요.
+즉 `Flutter = 앱 전체`가 아니라 `앱 안에서 선택 가능한 feature 플랫폼 중 하나`로 보는 편이 덜 헷갈려요.
+두 플랫폼은 다른 host를 쓰더라도 같은 `Host Contract v1` shape로 FlutterFeatureHost를 호출해야 해요.
 
 ```mermaid
-flowchart TD
-    subgraph IOS["iOS Host"]
-        I1["'UserSession' 읽기"]
-        I2["'SessionSnapshot' 생성"]
-        I3["'AuthContext' 생성"]
-        I4["'FeatureEntryPayload' 생성"]
-        I5["'HostLaunchContext' 조립"]
+flowchart LR
+    subgraph IOS["iOS App"]
+        I1["Native Feature A"]
+        I2["Native Feature B"]
+        I3["FlutterFeatureHost"]
     end
 
-    subgraph AOS["AOS Host"]
-        A1["'UserSession' 읽기"]
-        A2["'SessionSnapshot' 생성"]
-        A3["'AuthContext' 생성"]
-        A4["'FeatureEntryPayload' 생성"]
-        A5["'HostLaunchContext' 조립"]
+    subgraph AOS["AOS App"]
+        A1["Native Feature A"]
+        A2["Native Feature B"]
+        A3["FlutterFeatureHost"]
     end
 
-    I1 --> I2 --> I3 --> I4 --> I5
-    A1 --> A2 --> A3 --> A4 --> A5
+    I4["사용자가 팝업 관리자 진입"] --> I3
+    A4["사용자가 팝업 관리자 진입"] --> A3
 
-    I5 --> D1
-    A5 --> D1
+    I3 --> H1["iOS host가 context 조립
+    SessionSnapshot + AuthContext + EntryPayload"]
+    A3 --> H2["AOS host가 context 조립
+    SessionSnapshot + AuthContext + EntryPayload"]
 
-    D1["'Host Contract v1' shape 검증
-    hostContractVersion / featureId / nullable / enum / event name"]
-    D1 --> D2["'main_hosted.dart' 진입"]
-    D2 --> D3["Bootstrap + FeatureRegistry"]
-    D3 --> D4["'featureId'로 feature resolve"]
-    D4 --> D5["Hosted repository 주입
+    H1 --> C1["Host Contract v1 shape 통일
+    field / type / nullable / enum / event name"]
+    H2 --> C1
+
+    subgraph FLUTTER["Flutter Feature Platform"]
+        F1["main_hosted.dart"]
+        F2["Bootstrap"]
+        F3["FeatureRegistry"]
+        F4["admin.popup_management"]
+        F5["review.management"]
+        F6["campaign.editor"]
+    end
+
+    C1 --> F1 --> F2 --> F3
+    F3 --> F4
+    F3 -. future .-> F5
+    F3 -. future .-> F6
+
+    F4 --> R1["Hosted repository 주입
     session + authContext + environment 반영"]
-    D5 --> D6["Flutter feature render
-    예: 'admin.popup_management'"]
+    R1 --> UI1["Flutter UI render"]
 
-    D6 --> E1["Flutter -> Native 이벤트
-    'completed' / 'close' / 'needsRefresh' / 'openNativeRoute'"]
-    E1 --> I6["iOS Host 후처리
-    dismiss / refresh / route 이동"]
-    E1 --> A6["AOS Host 후처리
-    finish / refresh / route 이동"]
+    UI1 --> E1["Flutter -> Native 이벤트
+    completed / close / needsRefresh / openNativeRoute"]
+    E1 --> I3
+    E1 --> A3
 
-    I7["iOS 세션 변경"] --> E2["Native -> Flutter 이벤트
-    'sessionUpdated' / 'sessionInvalidated' / 'hostThemeChanged'"]
-    A7["AOS 세션 변경"] --> E2
-    E2 --> D6
+    I5["iOS 세션 변경"] --> E2["Native -> Flutter 이벤트
+    sessionUpdated / sessionInvalidated / hostThemeChanged"]
+    A5["AOS 세션 변경"] --> E2
+    E2 --> UI1
 ```
