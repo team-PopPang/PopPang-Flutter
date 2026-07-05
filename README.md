@@ -288,67 +288,163 @@ v1에서는 Flutter feature가 자기 repository 구현체를 통해 관리자 A
 ## Host Contract v1
 
 모든 Flutter feature는 `HostLaunchContext`를 기준으로 실행해요.
+iOS host와 Android host는 Flutter를 같은 위치에 도킹하듯이 이 계약을 똑같이 맞춰야 해요.
+필드 이름, 타입, nullable 여부, enum 문자열, 이벤트 이름, 기본값 해석이 다르면 같은 feature도 플랫폼마다 다르게 동작할 수 있어요.
+
+Host Contract를 맞출 때는 아래 다섯 가지를 항상 같이 봐요.
+
+- 필드 이름과 타입이 완전히 같은지
+- 선택 필드가 비었을 때 해석이 같은지
+- enum 문자열과 payload shape가 같은지
+- 이벤트 이름과 발생 시점이 같은지
+- demo mode와 hosted mode가 같은 contract를 재사용하는지
+
+아래 예시 값은 실제 운영값이 아니라 설명용 placeholder예요.
 
 ### Launch Context
 
-| 필드 | 타입 | 필수 여부 | 설명 |
-| --- | --- | --- | --- |
-| `hostContractVersion` | `Int` | 필수 | host와 Flutter 사이 계약 버전 |
-| `featureId` | `String` | 필수 | 실행할 Flutter feature 식별자 |
-| `featureVersion` | `String` | 권장 | 배포 버전 또는 디버그 버전 |
-| `session` | `SessionSnapshot` | 필수 | 실행 시점 세션 문맥 |
-| `authContext` | `AuthContext?` | 권장 | 직접 API 호출에 필요한 인증/환경 문맥 |
-| `entryPayload` | `FeatureEntryPayload` | 선택 | feature 초기 진입 파라미터 |
-| `featureFlags` | `Map<String, Bool>` | 선택 | 실험/분기용 flag |
-| `locale` | `String` | 필수 | 언어/지역 설정 |
-| `environment` | `String` | 필수 | `prod`, `stage`, `demo` 같은 실행 환경 |
+| 필드 | 타입 | 필수 여부 | 설명 | 예시 |
+| --- | --- | --- | --- | --- |
+| `hostContractVersion` | `Int` | 필수 | host와 Flutter 사이 계약 버전 | `1` |
+| `featureId` | `String` | 필수 | 실행할 Flutter feature 식별자 | `"admin.popup_management"` |
+| `featureVersion` | `String` | 권장 | 배포 버전 또는 디버그 버전 | `"0.1.0-dev"` |
+| `session` | `SessionSnapshot` | 필수 | 실행 시점 세션 문맥 | `{"userUuid":"admin-user-001","role":"admin","isLoggedIn":true,"locale":"ko-KR"}` |
+| `authContext` | `AuthContext?` | 권장 | 직접 API 호출에 필요한 인증/환경 문맥 | `{"tokenType":"Bearer","apiBaseUrl":"https://{admin-api-base-url}"}` |
+| `entryPayload` | `FeatureEntryPayload` | 선택 | feature 초기 진입 파라미터 | `{"initialTab":"list","initialFilter":"pending"}` |
+| `featureFlags` | `Map<String, Bool>` | 선택 | 실험/분기용 flag | `{"popupAdminV2":true,"useMockGateway":false}` |
+| `locale` | `String` | 필수 | 언어/지역 설정 | `"ko-KR"` |
+| `environment` | `String` | 필수 | `prod`, `stage`, `demo` 같은 실행 환경 | `"stage"` |
+
+권장 launch payload 예시는 아래처럼 맞춰요.
+
+```json
+{
+  "hostContractVersion": 1,
+  "featureId": "admin.popup_management",
+  "featureVersion": "0.1.0-dev",
+  "session": {
+    "userUuid": "admin-user-001",
+    "nickname": "관리자",
+    "role": "admin",
+    "isLoggedIn": true,
+    "provider": "social",
+    "locale": "ko-KR"
+  },
+  "authContext": {
+    "accessToken": "<redacted-access-token>",
+    "tokenType": "Bearer",
+    "apiBaseUrl": "https://{admin-api-base-url}"
+  },
+  "entryPayload": {
+    "initialTab": "list",
+    "initialSubmissionId": null,
+    "initialFilter": "pending"
+  },
+  "featureFlags": {
+    "popupAdminV2": true,
+    "useMockGateway": false
+  },
+  "locale": "ko-KR",
+  "environment": "stage"
+}
+```
 
 ### Session Snapshot
 
-| 필드 | 타입 | 필수 여부 | 설명 |
-| --- | --- | --- | --- |
-| `userUuid` | `String` | 로그인 시 필수 | 현재 사용자 식별자 |
-| `nickname` | `String?` | 선택 | UI 표시용 닉네임 |
-| `role` | `String` | 필수 | 예: `admin`, `user` |
-| `isLoggedIn` | `Bool` | 필수 | 로그인 여부 |
-| `provider` | `String?` | 선택 | 예: `kakao`, `google`, `apple` |
-| `locale` | `String` | 필수 | 세션 기준 로케일 |
+| 필드 | 타입 | 필수 여부 | 설명 | 예시 |
+| --- | --- | --- | --- | --- |
+| `userUuid` | `String` | 로그인 시 필수 | 현재 사용자 식별자 | `"admin-user-001"` |
+| `nickname` | `String?` | 선택 | UI 표시용 닉네임 | `"관리자"` |
+| `role` | `String` | 필수 | 예: `admin`, `user` | `"admin"` |
+| `isLoggedIn` | `Bool` | 필수 | 로그인 여부 | `true` |
+| `provider` | `String?` | 선택 | 예: `kakao`, `google`, `apple` | `"social"` |
+| `locale` | `String` | 필수 | 세션 기준 로케일 | `"ko-KR"` |
 
 `SessionSnapshot`은 UI와 runtime context를 위한 DTO예요.
 권한 그 자체를 표현하는 값으로 쓰면 안 돼요.
 
+예시:
+
+```json
+{
+  "userUuid": "admin-user-001",
+  "nickname": "관리자",
+  "role": "admin",
+  "isLoggedIn": true,
+  "provider": "social",
+  "locale": "ko-KR"
+}
+```
+
 ### Auth Context
 
-| 필드 | 타입 | 필수 여부 | 설명 |
-| --- | --- | --- | --- |
-| `accessToken` | `String?` | hosted에서는 권장 | 서버 인증 헤더 구성에 쓰는 토큰 |
-| `tokenType` | `String?` | 선택 | 예: `Bearer` |
-| `apiBaseUrl` | `String` | 필수 | feature가 호출할 API base URL |
+| 필드 | 타입 | 필수 여부 | 설명 | 예시 |
+| --- | --- | --- | --- | --- |
+| `accessToken` | `String?` | hosted에서는 권장 | 서버 인증 헤더 구성에 쓰는 토큰 | `"<redacted-access-token>"` |
+| `tokenType` | `String?` | 선택 | 예: `Bearer` | `"Bearer"` |
+| `apiBaseUrl` | `String` | 필수 | feature가 호출할 API base URL | `"https://{admin-api-base-url}"` |
+
+예시:
+
+```json
+{
+  "accessToken": "<redacted-access-token>",
+  "tokenType": "Bearer",
+  "apiBaseUrl": "https://{admin-api-base-url}"
+}
+```
 
 ### Feature Entry Payload
 
 `admin.popup_management` 기준 권장 payload는 아래와 같아요.
 
-| 필드 | 타입 | 필수 여부 | 설명 |
-| --- | --- | --- | --- |
-| `initialTab` | `String` | 선택 | feature 시작 탭 또는 섹션 |
-| `initialSubmissionId` | `Int?` | 선택 | 특정 상세로 바로 진입할 때 사용 |
-| `initialFilter` | `String` | 선택 | 초기 목록 필터 |
+| 필드 | 타입 | 필수 여부 | 설명 | 예시 |
+| --- | --- | --- | --- | --- |
+| `initialTab` | `String` | 선택 | feature 시작 탭 또는 섹션 | `"list"` |
+| `initialSubmissionId` | `Int?` | 선택 | 특정 상세로 바로 진입할 때 사용 | `48291` |
+| `initialFilter` | `String` | 선택 | 초기 목록 필터 | `"pending"` |
+
+목록으로 여는 예시:
+
+```json
+{
+  "initialTab": "list",
+  "initialSubmissionId": null,
+  "initialFilter": "pending"
+}
+```
+
+특정 상세로 바로 여는 예시:
+
+```json
+{
+  "initialTab": "detail",
+  "initialSubmissionId": 48291,
+  "initialFilter": "pending"
+}
+```
 
 ### Native -> Flutter 이벤트
 
-- `sessionUpdated`
-- `sessionInvalidated`
-- `hostThemeChanged`
+| 이벤트 | 언제 쓰는가 | 예시 payload |
+| --- | --- | --- |
+| `sessionUpdated` | 로그인 상태, role, locale 같은 세션 문맥이 바뀌었을 때 | `{"session":{"userUuid":"admin-user-001","role":"admin","isLoggedIn":true,"locale":"ko-KR"}}` |
+| `sessionInvalidated` | 로그아웃되었거나 현재 feature 접근 권한이 사라졌을 때 | `{"reason":"logged_out"}` |
+| `hostThemeChanged` | 네이티브 앱 테마나 스타일 토큰이 바뀌었을 때 | `{"theme":"dark"}` |
+
+이벤트 이름과 payload shape는 iOS/Android가 완전히 같아야 해요.
+한쪽은 `themeMode`, 다른 쪽은 `theme`처럼 이름이 갈리면 브리지가 바로 흔들려요.
 
 ### Flutter -> Native 이벤트
 
-- `close`
-- `completed`
-- `needsRefresh`
-- `openNativeRoute`
-- `openExternalUrl`
-- `logEvent`
+| 이벤트 | 언제 쓰는가 | 예시 payload |
+| --- | --- | --- |
+| `close` | 사용자가 feature를 닫았을 때 | `{"source":"nav_back"}` |
+| `completed` | 승인, 반려 같은 주요 작업이 끝났을 때 | `{"action":"approve","submissionId":48291}` |
+| `needsRefresh` | 네이티브 host가 상위 목록이나 배지를 다시 불러와야 할 때 | `{"target":"popup_admin_list"}` |
+| `openNativeRoute` | Flutter 바깥의 네이티브 화면으로 이동해야 할 때 | `{"route":"native_detail","params":{"itemId":48291}}` |
+| `openExternalUrl` | 외부 웹 링크나 브라우저를 열어야 할 때 | `{"url":"https://{external-url}"}` |
+| `logEvent` | analytics 이벤트를 네이티브로 넘길 때 | `{"name":"popup_admin_opened","properties":{"entry":"pending"}}` |
 
 ## Feature ID와 Registry 전략
 
@@ -566,3 +662,55 @@ v1 기본 방향은 Flutter feature의 repository가 관리자 API를 직접 호
 ### 새로운 Flutter feature를 추가할 때 가장 먼저 해야 할 일은 무엇인가요?
 
 `featureId`를 먼저 정하고 그 feature의 `domain`, `usecase`, `repository protocol`을 먼저 정의하는 것이 좋아요.
+
+## AOS/iOS -> Flutter 연결 흐름
+
+iOS와 AOS는 다른 host를 쓰더라도 같은 `Host Contract v1` 슬롯으로 Flutter feature를 도킹해야 해요.
+즉 두 플랫폼이 만드는 값은 달라도, Flutter에 넘기는 shape와 해석은 같아야 해요.
+
+```mermaid
+flowchart TD
+    subgraph IOS["iOS Host"]
+        I1["'UserSession' 읽기"]
+        I2["'SessionSnapshot' 생성"]
+        I3["'AuthContext' 생성"]
+        I4["'FeatureEntryPayload' 생성"]
+        I5["'HostLaunchContext' 조립"]
+    end
+
+    subgraph AOS["AOS Host"]
+        A1["'UserSession' 읽기"]
+        A2["'SessionSnapshot' 생성"]
+        A3["'AuthContext' 생성"]
+        A4["'FeatureEntryPayload' 생성"]
+        A5["'HostLaunchContext' 조립"]
+    end
+
+    I1 --> I2 --> I3 --> I4 --> I5
+    A1 --> A2 --> A3 --> A4 --> A5
+
+    I5 --> D1
+    A5 --> D1
+
+    D1["'Host Contract v1' shape 검증
+    hostContractVersion / featureId / nullable / enum / event name"]
+    D1 --> D2["'main_hosted.dart' 진입"]
+    D2 --> D3["Bootstrap + FeatureRegistry"]
+    D3 --> D4["'featureId'로 feature resolve"]
+    D4 --> D5["Hosted repository 주입
+    session + authContext + environment 반영"]
+    D5 --> D6["Flutter feature render
+    예: 'admin.popup_management'"]
+
+    D6 --> E1["Flutter -> Native 이벤트
+    'completed' / 'close' / 'needsRefresh' / 'openNativeRoute'"]
+    E1 --> I6["iOS Host 후처리
+    dismiss / refresh / route 이동"]
+    E1 --> A6["AOS Host 후처리
+    finish / refresh / route 이동"]
+
+    I7["iOS 세션 변경"] --> E2["Native -> Flutter 이벤트
+    'sessionUpdated' / 'sessionInvalidated' / 'hostThemeChanged'"]
+    A7["AOS 세션 변경"] --> E2
+    E2 --> D6
+```
