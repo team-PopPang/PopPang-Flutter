@@ -309,7 +309,6 @@ Host Contract를 맞출 때는 아래 다섯 가지를 항상 같이 봐요.
 | `featureId` | `String` | 필수 | 실행할 Flutter feature 식별자 |
 | `featureVersion` | `String` | 권장 | 배포 버전 또는 디버그 버전 |
 | `session` | `SessionSnapshot` | 필수 | 실행 시점 세션 문맥 |
-| `authContext` | `AuthContext?` | 권장 | 직접 API 호출에 필요한 인증/환경 문맥 |
 | `entryPayload` | `FeatureEntryPayload` | 선택 | feature 초기 진입 파라미터 |
 | `featureFlags` | `Map<String, Bool>` | 선택 | 실험/분기용 flag |
 | `locale` | `String` | 필수 | 언어/지역 설정 |
@@ -324,11 +323,6 @@ Host Contract를 맞출 때는 아래 다섯 가지를 항상 같이 봐요.
   "featureVersion": "0.1.0-dev",
   "session": {
     "userUuid": "user-123"
-  },
-  "authContext": {
-    "accessToken": "<redacted-access-token>",
-    "tokenType": "Bearer",
-    "apiBaseUrl": "https://{admin-api-base-url}"
   },
   "entryPayload": {
     "initialTab": "list",
@@ -356,30 +350,13 @@ v1에서는 가장 작은 계약으로 시작해요.
 `SessionSnapshot`은 UI와 runtime context를 위한 DTO예요.
 권한 그 자체를 표현하는 값으로 쓰면 안 돼요.
 로그인 여부, 프로필 완료 여부, 화면 전환은 네이티브가 먼저 통제하고 Flutter feature를 열기 때문에 v1 세션에는 넣지 않아요.
+API 인증, 토큰 보관, 서버 주소 결정은 Flutter 모듈 내부 책임으로 두고 Host Contract에는 포함하지 않아요.
 
 예시:
 
 ```json
 {
   "userUuid": "user-123"
-}
-```
-
-### Auth Context
-
-| 필드 | 타입 | 필수 여부 | 설명 | 예시 |
-| --- | --- | --- | --- | --- |
-| `accessToken` | `String?` | hosted에서는 권장 | 서버 인증 헤더 구성에 쓰는 토큰 | `"<redacted-access-token>"` |
-| `tokenType` | `String?` | 선택 | 예: `Bearer` | `"Bearer"` |
-| `apiBaseUrl` | `String` | 필수 | feature가 호출할 API base URL | `"https://{admin-api-base-url}"` |
-
-예시:
-
-```json
-{
-  "accessToken": "<redacted-access-token>",
-  "tokenType": "Bearer",
-  "apiBaseUrl": "https://{admin-api-base-url}"
 }
 ```
 
@@ -681,9 +658,9 @@ flowchart TD
     end
 
     I3 --> H1["iOS host가 HostLaunchContext 조립
-    SessionSnapshot + AuthContext + EntryPayload"]
+    SessionSnapshot + EntryPayload"]
     A3 --> H2["AOS host가 HostLaunchContext 조립
-    SessionSnapshot + AuthContext + EntryPayload"]
+    SessionSnapshot + EntryPayload"]
 
     U1 --> I3
     U2 --> A3
@@ -706,8 +683,8 @@ flowchart TD
     F3 -.-> F5
     F3 -.-> F6
 
-    F4 --> R1["Hosted repository 주입
-    session + authContext + environment 반영"]
+    F4 --> R1["Feature repository 실행
+    Flutter 내부 network/auth/core 사용"]
     R1 --> UI1["Flutter UI render"]
 
     UI1 --> E1["Flutter -> Native 이벤트
