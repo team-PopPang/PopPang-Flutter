@@ -7,8 +7,8 @@
 네이티브 앱이 계속 앱 레벨 책임을 갖고, Flutter는 재사용 가능한 feature 계층을 맡아요.
 
 > 현재 이 저장소는 스캐폴딩 단계예요.
-> 아직 실행 가능한 Flutter 앱 코드는 없고, README와 placeholder 디렉터리만 커밋돼 있어요.
-> 그래서 이 문서는 "지금 바로 실행하는 방법"보다 "무엇을 만들고 어떻게 연결할지"를 설명하는 설계 문서에 가까워요.
+> Flutter module 생성과 hosted/demo 기본 진입점 정리까지는 끝났어요.
+> 아직 실제 feature 코드와 host bridge는 placeholder 단계라서, 이 문서는 실행 방법과 함께 "무엇을 만들고 어떻게 연결할지"를 설명하는 설계 문서에 가까워요.
 
 ## 한눈에 보기
 
@@ -21,27 +21,34 @@
 
 ## 현재 상태
 
-현재 저장소에는 아래 디렉터리만 준비돼 있어요.
+현재 저장소에는 Flutter module 기본 스캐폴딩과 두 가지 실행 진입점이 들어가 있어요.
 
 ```text
 PopPang-Flutter/
+├─ .android/
+├─ .ios/
 ├─ README.md
-├─ integration_test/
 ├─ lib/
-├─ pigeon/
-├─ scripts/
+│  ├─ main.dart
+│  ├─ main_demo.dart
+│  └─ main_hosted.dart
+├─ pubspec.yaml
 └─ test/
 ```
 
-아직 아래 항목은 커밋되지 않았어요.
+아직 아래 항목은 placeholder 또는 미구현 상태예요.
 
-- `pubspec.yaml`
-- `lib/main_demo.dart`
-- `lib/main_hosted.dart`
 - 실제 feature 코드
 - host bridge 구현
+- contract 모델 구체화
+- repository / usecase 레이어
 
 문서 안에서 나오는 파일 구조와 진입점은 "현재 상태"가 아니라 "목표 구조"로 읽으면 돼요.
+
+### 실행 확인
+
+- hosted 확인: `flutter run`
+- demo 확인: `flutter run --target lib/main_demo.dart`
 
 ## 이번 범위
 
