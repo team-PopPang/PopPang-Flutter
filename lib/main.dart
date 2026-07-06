@@ -1,7 +1,7 @@
-import 'main_demo.dart' as demo;
+import 'main_hosted.dart' as hosted;
 
 void main() {
-  // Default local entry point runs demo mode so `flutter run` works
-  // without a native host app.
-  demo.runDemoApp();
+  // Default entry point boots hosted mode so the module's baseline path
+  // stays aligned with native embedding.
+  hosted.runHostedApp();
 }

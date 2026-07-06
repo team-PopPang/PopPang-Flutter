@@ -17,9 +17,7 @@ class PopPangDemoApp extends StatelessWidget {
       title: 'PopPang Flutter Demo',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF0F766E),
-        ),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0F766E)),
         scaffoldBackgroundColor: const Color(0xFFF5F7FA),
         useMaterial3: true,
       ),
@@ -36,9 +34,7 @@ class DemoHomePage extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Demo Mode'),
-      ),
+      appBar: AppBar(title: const Text('Demo Mode')),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -60,14 +56,18 @@ class DemoHomePage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Current setup',
-                      style: theme.textTheme.titleMedium,
-                    ),
+                    Text('Current setup', style: theme.textTheme.titleMedium),
                     const SizedBox(height: 12),
-                    const Text('- Entry point: lib/main.dart -> lib/main_demo.dart'),
+                    const Text(
+                      '- Hosted entry: lib/main.dart -> lib/main_hosted.dart',
+                    ),
+                    const Text(
+                      '- Demo run: flutter run --target lib/main_demo.dart',
+                    ),
                     const Text('- Mode: Demo'),
-                    const Text('- First feature target: admin.popup_management'),
+                    const Text(
+                      '- First feature target: admin.popup_management',
+                    ),
                   ],
                 ),
               ),
