@@ -79,6 +79,11 @@ PopPang-Flutter/
 
 문서 안에서 나오는 파일 구조와 진입점은 "현재 상태"가 아니라 "목표 구조"로 읽으면 돼요.
 
+### 실행 확인
+
+- hosted 확인: `flutter run`
+- demo 확인: `flutter run --target lib/main_demo.dart`
+
 ## 이번 범위
 
 ### 목표
