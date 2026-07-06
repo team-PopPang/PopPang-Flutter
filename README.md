@@ -10,15 +10,6 @@
 > Flutter module 생성과 hosted/demo 기본 진입점 정리까지는 끝났어요.
 > 아직 실제 feature 코드와 host bridge는 placeholder 단계라서, 이 문서는 실행 방법과 함께 "무엇을 만들고 어떻게 연결할지"를 설명하는 설계 문서에 가까워요.
 
-## 빠른 시작
-
-처음 보는 팀원은 아래 순서로 시작하면 돼요.
-
-1. 의존성을 받아요. `flutter pub get`
-2. 모듈 기본 entry를 확인해요. `flutter run`
-3. demo mode 화면을 확인해요. `flutter run --target lib/main_demo.dart`
-4. 구조를 빠르게 훑고 싶으면 `한눈에 보기 -> 현재 상태 -> Hosted Mode vs Demo Mode 비교` 순서로 읽어요.
-
 ## 목차
 
 - [빠른 시작](#빠른-시작)
@@ -43,6 +34,15 @@
 - [완료 기준](#완료-기준)
 - [FAQ](#faq)
 - [AOS와 iOS에서 Flutter로 연결하는 흐름](#aos와-ios에서-flutter로-연결하는-흐름)
+
+## 빠른 시작
+
+처음 보는 팀원은 아래 순서로 시작하면 돼요.
+
+1. 의존성을 받아요. `flutter pub get`
+2. 모듈 기본 entry를 확인해요. `flutter run`
+3. demo mode 화면을 확인해요. `flutter run --target lib/main_demo.dart`
+4. 구조를 빠르게 훑고 싶으면 `한눈에 보기 -> 현재 상태 -> Hosted Mode vs Demo Mode 비교` 순서로 읽어요.
 
 ## 한눈에 보기
 
