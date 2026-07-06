@@ -4,6 +4,7 @@
 .flutter-plugins-dependencies
 .packages
 build/
+docs/
 
 # IDE
 .idea/
@@ -20,4 +21,3 @@ android/local.properties
 ios/Pods/
 ios/.symlinks/
 ios/Flutter/ephemeral/
-
