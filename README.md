@@ -303,17 +303,17 @@ Host Contract를 맞출 때는 아래 다섯 가지를 항상 같이 봐요.
 
 ### Launch Context
 
-| 필드 | 타입 | 필수 여부 | 설명 | 예시 |
-| --- | --- | --- | --- | --- |
-| `hostContractVersion` | `Int` | 필수 | host와 Flutter 사이 계약 버전 | `1` |
-| `featureId` | `String` | 필수 | 실행할 Flutter feature 식별자 | `"admin.popup_management"` |
-| `featureVersion` | `String` | 권장 | 배포 버전 또는 디버그 버전 | `"0.1.0-dev"` |
-| `session` | `SessionSnapshot` | 필수 | 실행 시점 세션 문맥 | `{"userUuid":"user-123"}` |
-| `authContext` | `AuthContext?` | 권장 | 직접 API 호출에 필요한 인증/환경 문맥 | `{"tokenType":"Bearer","apiBaseUrl":"https://{admin-api-base-url}"}` |
-| `entryPayload` | `FeatureEntryPayload` | 선택 | feature 초기 진입 파라미터 | `{"initialTab":"list","initialFilter":"pending"}` |
-| `featureFlags` | `Map<String, Bool>` | 선택 | 실험/분기용 flag | `{"popupAdminV2":true,"useMockGateway":false}` |
-| `locale` | `String` | 필수 | 언어/지역 설정 | `"ko-KR"` |
-| `environment` | `String` | 필수 | `prod`, `stage`, `demo` 같은 실행 환경 | `"stage"` |
+| 필드 | 타입 | 구분 | 설명 |
+| --- | --- | --- | --- |
+| `hostContractVersion` | `Int` | 필수 | host와 Flutter 사이 계약 버전 |
+| `featureId` | `String` | 필수 | 실행할 Flutter feature 식별자 |
+| `featureVersion` | `String` | 권장 | 배포 버전 또는 디버그 버전 |
+| `session` | `SessionSnapshot` | 필수 | 실행 시점 세션 문맥 |
+| `authContext` | `AuthContext?` | 권장 | 직접 API 호출에 필요한 인증/환경 문맥 |
+| `entryPayload` | `FeatureEntryPayload` | 선택 | feature 초기 진입 파라미터 |
+| `featureFlags` | `Map<String, Bool>` | 선택 | 실험/분기용 flag |
+| `locale` | `String` | 필수 | 언어/지역 설정 |
+| `environment` | `String` | 필수 | `prod`, `stage`, `demo` 같은 실행 환경 |
 
 권장 launch payload 예시는 아래처럼 맞춰요.
 
