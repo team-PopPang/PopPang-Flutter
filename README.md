@@ -308,7 +308,7 @@ Host Contract를 맞출 때는 아래 다섯 가지를 항상 같이 봐요.
 | `hostContractVersion` | `Int` | 필수 | host와 Flutter 사이 계약 버전 | `1` |
 | `featureId` | `String` | 필수 | 실행할 Flutter feature 식별자 | `"admin.popup_management"` |
 | `featureVersion` | `String` | 권장 | 배포 버전 또는 디버그 버전 | `"0.1.0-dev"` |
-| `session` | `SessionSnapshot` | 필수 | 실행 시점 세션 문맥 | `{"userUuid":"admin-user-001","role":"admin","isLoggedIn":true,"locale":"ko-KR"}` |
+| `session` | `SessionSnapshot` | 필수 | 실행 시점 세션 문맥 | `{"userUuid":"user-123"}` |
 | `authContext` | `AuthContext?` | 권장 | 직접 API 호출에 필요한 인증/환경 문맥 | `{"tokenType":"Bearer","apiBaseUrl":"https://{admin-api-base-url}"}` |
 | `entryPayload` | `FeatureEntryPayload` | 선택 | feature 초기 진입 파라미터 | `{"initialTab":"list","initialFilter":"pending"}` |
 | `featureFlags` | `Map<String, Bool>` | 선택 | 실험/분기용 flag | `{"popupAdminV2":true,"useMockGateway":false}` |
@@ -323,12 +323,7 @@ Host Contract를 맞출 때는 아래 다섯 가지를 항상 같이 봐요.
   "featureId": "admin.popup_management",
   "featureVersion": "0.1.0-dev",
   "session": {
-    "userUuid": "admin-user-001",
-    "nickname": "관리자",
-    "role": "admin",
-    "isLoggedIn": true,
-    "provider": "social",
-    "locale": "ko-KR"
+    "userUuid": "user-123"
   },
   "authContext": {
     "accessToken": "<redacted-access-token>",
@@ -351,28 +346,22 @@ Host Contract를 맞출 때는 아래 다섯 가지를 항상 같이 봐요.
 
 ### Session Snapshot
 
+v1에서는 가장 작은 계약으로 시작해요.
+현재는 `userUuid`만 전달하고, 추가 문맥이 정말 필요해질 때만 필드를 늘려요.
+
 | 필드 | 타입 | 필수 여부 | 설명 | 예시 |
 | --- | --- | --- | --- | --- |
-| `userUuid` | `String` | 로그인 시 필수 | 현재 사용자 식별자 | `"admin-user-001"` |
-| `nickname` | `String?` | 선택 | UI 표시용 닉네임 | `"관리자"` |
-| `role` | `String` | 필수 | 예: `admin`, `user` | `"admin"` |
-| `isLoggedIn` | `Bool` | 필수 | 로그인 여부 | `true` |
-| `provider` | `String?` | 선택 | 예: `kakao`, `google`, `apple` | `"social"` |
-| `locale` | `String` | 필수 | 세션 기준 로케일 | `"ko-KR"` |
+| `userUuid` | `String` | 필수 | 현재 로그인 사용자의 식별자 | `"user-123"` |
 
 `SessionSnapshot`은 UI와 runtime context를 위한 DTO예요.
 권한 그 자체를 표현하는 값으로 쓰면 안 돼요.
+로그인 여부, 프로필 완료 여부, 화면 전환은 네이티브가 먼저 통제하고 Flutter feature를 열기 때문에 v1 세션에는 넣지 않아요.
 
 예시:
 
 ```json
 {
-  "userUuid": "admin-user-001",
-  "nickname": "관리자",
-  "role": "admin",
-  "isLoggedIn": true,
-  "provider": "social",
-  "locale": "ko-KR"
+  "userUuid": "user-123"
 }
 ```
 
@@ -428,7 +417,7 @@ Host Contract를 맞출 때는 아래 다섯 가지를 항상 같이 봐요.
 
 | 이벤트 | 언제 쓰는가 | 예시 payload |
 | --- | --- | --- |
-| `sessionUpdated` | 로그인 상태, role, locale 같은 세션 문맥이 바뀌었을 때 | `{"session":{"userUuid":"admin-user-001","role":"admin","isLoggedIn":true,"locale":"ko-KR"}}` |
+| `sessionUpdated` | Flutter가 떠 있는 동안 사용자 식별 문맥이 바뀌었을 때 | `{"session":{"userUuid":"user-456"}}` |
 | `sessionInvalidated` | 로그아웃되었거나 현재 feature 접근 권한이 사라졌을 때 | `{"reason":"logged_out"}` |
 | `hostThemeChanged` | 네이티브 앱 테마나 스타일 토큰이 바뀌었을 때 | `{"theme":"dark"}` |
 
