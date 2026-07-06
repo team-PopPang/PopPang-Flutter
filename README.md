@@ -42,7 +42,7 @@
 - [권장 마이그레이션 순서](#권장-마이그레이션-순서)
 - [완료 기준](#완료-기준)
 - [FAQ](#faq)
-- [AOS/iOS -> Flutter 연결 흐름](#aosios----flutter-연결-흐름)
+- [AOS와 iOS에서 Flutter로 연결하는 흐름](#aos와-ios에서-flutter로-연결하는-흐름)
 
 ## 한눈에 보기
 
@@ -623,7 +623,7 @@ v1 기본 방향은 Flutter feature의 repository가 관리자 API를 직접 호
 
 `featureId`를 먼저 정하고 그 feature의 `domain`, `usecase`, `repository protocol`을 먼저 정의하는 것이 좋아요.
 
-## AOS/iOS -> Flutter 연결 흐름
+## AOS와 iOS에서 Flutter로 연결하는 흐름
 
 iOS와 AOS는 각자 많은 앱 feature를 가지고 있고, Flutter는 그중 하나의 feature 진입 방식을 담당해요.
 즉 `Flutter = 앱 전체`가 아니라 `앱 안에서 선택 가능한 feature 플랫폼 중 하나`로 보는 편이 덜 헷갈려요.
