@@ -10,6 +10,40 @@
 > Flutter module 생성과 hosted/demo 기본 진입점 정리까지는 끝났어요.
 > 아직 실제 feature 코드와 host bridge는 placeholder 단계라서, 이 문서는 실행 방법과 함께 "무엇을 만들고 어떻게 연결할지"를 설명하는 설계 문서에 가까워요.
 
+## 빠른 시작
+
+처음 보는 팀원은 아래 순서로 시작하면 돼요.
+
+1. 의존성을 받아요. `flutter pub get`
+2. 모듈 기본 entry를 확인해요. `flutter run`
+3. demo mode 화면을 확인해요. `flutter run --target lib/main_demo.dart`
+4. 구조를 빠르게 훑고 싶으면 `한눈에 보기 -> 현재 상태 -> Hosted Mode vs Demo Mode 비교` 순서로 읽어요.
+
+## 목차
+
+- [빠른 시작](#빠른-시작)
+- [한눈에 보기](#한눈에-보기)
+- [현재 상태](#현재-상태)
+- [이번 범위](#이번-범위)
+- [첫 번째 feature](#첫-번째-feature)
+- [플랫폼 모델](#플랫폼-모델)
+- [실행 모델](#실행-모델)
+- [책임 분리 원칙](#책임-분리-원칙)
+- [목표 구조](#목표-구조)
+- [핵심 설계 원칙](#핵심-설계-원칙)
+- [Host Contract v1](#host-contract-v1)
+- [Feature ID와 Registry 전략](#feature-id와-registry-전략)
+- [새 feature 추가 규칙](#새-feature-추가-규칙)
+- [Demo 모드 전략](#demo-모드-전략)
+- [Hosted Mode vs Demo Mode 비교](#hosted-mode-vs-demo-mode-비교)
+- [플랫폼 연동 원칙](#플랫폼-연동-원칙)
+- [배포와 호환성 원칙](#배포와-호환성-원칙)
+- [보안 원칙](#보안-원칙)
+- [권장 마이그레이션 순서](#권장-마이그레이션-순서)
+- [완료 기준](#완료-기준)
+- [FAQ](#faq)
+- [AOS/iOS -> Flutter 연결 흐름](#aosios----flutter-연결-흐름)
+
 ## 한눈에 보기
 
 - 이 저장소는 PopPang 네이티브 앱용 공용 Flutter feature 플랫폼이에요.
@@ -44,11 +78,6 @@ PopPang-Flutter/
 - repository / usecase 레이어
 
 문서 안에서 나오는 파일 구조와 진입점은 "현재 상태"가 아니라 "목표 구조"로 읽으면 돼요.
-
-### 실행 확인
-
-- hosted 확인: `flutter run`
-- demo 확인: `flutter run --target lib/main_demo.dart`
 
 ## 이번 범위
 
